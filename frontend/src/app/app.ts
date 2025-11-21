@@ -9,7 +9,7 @@ import {
   SortService,
   PageService,
   GridComponent,
-  ExcelExportService,  
+  ExcelExportService,
   PdfExportService
 } from '@syncfusion/ej2-angular-grids';
 import { ClickEventArgs } from '@syncfusion/ej2-buttons';
@@ -381,7 +381,12 @@ export class App {
     tempInput.click();
   }
 
-  public onFileSelected(event: Event, rowData: any): void {
+  private generateMockUrl(file: File): string {
+    const token = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+    return `http://localhost:5089/uploads/${token}-${encodeURIComponent(file.name)}`;
+  }
+
+  public async onFileSelected(event: Event, rowData: any): Promise<void> {
     const input = event.target as HTMLInputElement;
     const files = input.files;
     if (!files || files.length === 0) {
@@ -392,24 +397,52 @@ export class App {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      try {
-        const objectUrl = URL.createObjectURL(file);
-        rowData.attachments.push({
-          name: file.name,
-          type: file.type || this.getFileTypeFromName(file.name),
-          url: objectUrl,
-          size: file.size
-        });
-      } catch (err) {
-        console.error('error creating object URL', err);
-      }
+      rowData.attachments.push({
+        name: file.name,
+        type: file.type || this.getFileTypeFromName(file.name),
+        url: this.generateMockUrl(file),
+        size: file.size
+      });
     }
+
+    // refresh the grid UI
     try {
       (this.grid as any).refresh();
     } catch (e) {
       this.data = [...this.data];
     }
+
+    // Persist immediately to backend
+    try {
+      if (rowData && rowData.LoanID) {
+        await this.updateLoanOnServer(rowData);
+      } else {
+        const minimal = {
+          LoanID: rowData.LoanID ?? undefined,
+          Borrower: rowData.Borrower ?? '',
+          Amount: rowData.Amount ?? 0,
+          Purpose: rowData.Purpose ?? '',
+          Branch: rowData.Branch ?? '',
+          DocumentType: rowData.DocumentType ?? '',
+          attachments: rowData.attachments || []
+        };
+
+        const created = await this.createLoanOnServer(minimal);
+        if (created) {
+          const newId = created?.LoanID ?? created?.loanID;
+          if (newId) {
+            rowData.LoanID = newId;
+          }
+        }
+        this.data = [...this.data];
+      }
+    } catch (err) {
+      console.error('Failed to save attachments immediately:', err);
+      // optionally show user feedback
+      window.alert('Could not save attachments to server — see console.');
+    }
   }
+
 
   public onPreviewSelect(event: Event, rowData: any): void {
     const sel = event.target as HTMLSelectElement;

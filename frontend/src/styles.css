@@ -86,10 +86,6 @@
   box-shadow: none;
 }
 
-/* Ensure toolbar visually aligns to the right */
-.top-toolbar {
-}
-
 /* Content area */
 .page-content {
   padding: 20px;
