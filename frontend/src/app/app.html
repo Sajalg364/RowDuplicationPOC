@@ -1,0 +1,120 @@
+<!-- root wrapper has class binding for dark mode -->
+<div class="app-root" [class.dark]="isDark">
+  <!-- Header: title left, actions (theme toggle + toolbar) right -->
+  <header class="page-header">
+    <div class="page-title">
+      <h1>Row Duplication</h1>
+    </div>
+
+    <div class="header-actions">
+      <!-- Theme toggle -->
+      <button class="theme-toggle" (click)="toggleTheme()" aria-label="Toggle theme">
+        <span *ngIf="!isDark">Dark</span>
+        <span *ngIf="isDark">Light</span>
+      </button>
+
+      <!-- Keep toolbar here for top-right placement -->
+      <ejs-toolbar (clicked)="onToolbarClick($event)" class="top-toolbar">
+        <e-items>
+          <e-item text="Add" id="add"></e-item>
+          <e-item text="Edit" id="edit"></e-item>
+          <e-item text="Delete" id="delete"></e-item>
+          <e-item text="Update" id="update"></e-item>
+          <e-item text="Cancel" id="cancel"></e-item>
+          <e-item text="Duplicate" id="duplicate"></e-item>
+        </e-items>
+      </ejs-toolbar>
+    </div>
+  </header>
+
+  <!-- content area -->
+  <main class="page-content">
+    <div class="grid-wrap">
+      <ejs-grid #grid id="LoanGrid" [dataSource]="data" allowPaging="true" [pageSettings]="pageSettings"
+                [editSettings]="editSettings" allowSorting="true"
+                [selectionSettings]="selectionSettings"
+                (actionComplete)="onActionComplete($event)"
+                (actionBegin)="onActionBegin($event)">
+      >
+        <e-columns>
+          <e-column field="LoanID" headerText="Loan ID" width="120" textAlign="Right" isPrimaryKey="true"
+                    [validationRules]="loanIDRules"></e-column>
+
+          <e-column field="Borrower" headerText="Borrower" width="180" [validationRules]="borrowerRules"></e-column>
+          <e-column field="Amount" headerText="Amount" width="130" format="C2" textAlign="Right"
+                    editType="numericedit" [validationRules]="amountRules"></e-column>
+          <e-column field="Purpose" headerText="Purpose" width="220" editType="defaultedit"></e-column>
+          <e-column field="Branch" headerText="Branch" width="150"></e-column>
+
+          <e-column field="DocumentType" headerText="Document Type" width="160" editType="dropdownedit"
+                    [edit]="documentTypeEditParams"></e-column>
+
+          <e-column field="attachments" headerText="Attachments" width="260"
+                    [template]="attachmentTemplate"
+                    editType="templateedit"
+                    [editTemplate]="attachmentEditTemplate">
+          </e-column>
+        </e-columns>
+      </ejs-grid>
+    </div>
+  </main>
+
+  <!-- Display template for Attachments column -->
+  <ng-template #attachmentTemplate let-data>
+    <div class="attachments-cell">
+      <div class="attachments-count">
+        <small *ngIf="(data.attachments && data.attachments.length) as len">{{ len }} file{{ len>1 ? 's' : '' }}</small>
+        <small *ngIf="!data.attachments || data.attachments.length===0">No files</small>
+      </div>
+
+      <div>
+        <button class="btn-upload" type="button" (click)="openFileSelector(data)">Upload</button>
+      </div>
+
+      <div *ngIf="data.attachments && data.attachments.length" class="preview-select">
+        <select (change)="onPreviewSelect($event, data)">
+          <option value="">Preview...</option>
+          <option *ngFor="let f of data.attachments; let i = index" [value]="i">{{ f.name }}</option>
+        </select>
+      </div>
+
+      <!-- Hidden permanent file input (works for existing rows that have LoanID) -->
+      <input
+        type="file"
+        id="{{'file-input-' + data.LoanID}}"
+        style="display:none"
+        (change)="onFileSelected($event, data)"
+        multiple
+      />
+    </div>
+  </ng-template>
+
+  <!-- Edit template for Attachments column (shown when the row is being edited/created) -->
+  <ng-template #attachmentEditTemplate let-data>
+    <div class="attachments-cell edit">
+      <div class="attachments-count">
+        <small *ngIf="(data.attachments && data.attachments.length) as len">{{ len }} file{{ len>1 ? 's' : '' }}</small>
+        <small *ngIf="!data.attachments || data.attachments.length===0">No files</small>
+      </div>
+
+      <div>
+        <button class="btn-upload" type="button" (click)="openFileSelector(data)">Upload</button>
+      </div>
+
+      <div *ngIf="data.attachments && data.attachments.length" class="preview-select">
+        <select (change)="onPreviewSelect($event, data)">
+          <option value="">Preview...</option>
+          <option *ngFor="let f of data.attachments; let i = index" [value]="i">{{ f.name }}</option>
+        </select>
+      </div>
+
+      <input
+        type="file"
+        id="{{'file-input-' + (data.LoanID || 'new-' + (data.__tempId || ''))}}"
+        style="display:none"
+        (change)="onFileSelected($event, data)"
+        multiple
+      />
+    </div>
+  </ng-template>
+</div>
