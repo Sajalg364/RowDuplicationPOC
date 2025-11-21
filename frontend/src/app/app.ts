@@ -8,7 +8,9 @@ import {
   ToolbarService,
   SortService,
   PageService,
-  GridComponent
+  GridComponent,
+  ExcelExportService,  
+  PdfExportService
 } from '@syncfusion/ej2-angular-grids';
 import { ClickEventArgs } from '@syncfusion/ej2-buttons';
 import { DatePickerAllModule, TimePickerModule } from '@syncfusion/ej2-angular-calendars';
@@ -35,7 +37,7 @@ import { LoanService } from './services/loan.service';
     DropDownListModule,
     HttpClientModule // ensure HttpClient is available for the service
   ],
-  providers: [EditService, ToolbarService, SortService, PageService],
+  providers: [EditService, ToolbarService, SortService, PageService, ExcelExportService, PdfExportService],
   standalone: true,
   selector: 'app-root',
   templateUrl: './app.html',
@@ -55,6 +57,8 @@ export class App {
   public toolbarOptions?: string[];
   public selectionSettings?: Object;
   public isDark: boolean = false;
+  public exportMenuOpen: boolean = false;
+  public exportFormats = ['CSV', 'PDF'];
 
   constructor(private loanService: LoanService) { }
 
@@ -99,6 +103,52 @@ export class App {
 
     // load from backend (if API unavailable, it falls back to an empty array)
     this.loadFromServer();
+  }
+
+  // ---------------- Export helpers ----------------
+
+  // toggle small dropdown menu (or use your own UI)
+  public toggleExportMenu(): void {
+    this.exportMenuOpen = !this.exportMenuOpen;
+  }
+
+  // called when user selects a format
+  public export(format: string): void {
+    if (!this.grid) {
+      window.alert('Grid not ready for export.');
+      return;
+    }
+
+    const fmt = (format || '').toLowerCase();
+
+    try {
+      // export all pages (not only current page) by passing export options
+      // csvExport and excelExport accept optional export properties; pdfExport accepts pdfExportProperties
+      if (fmt === 'csv') {
+        // csvExport has an optional argument (CsvExportProperties). Leaving default works too.
+        (this.grid as any).csvExport({
+          fileName: 'Loans.csv',
+          exportType: 'All' // optional depending on version; Grid defaults often export all rows when called directly
+        });
+      } else if (fmt === 'excel') {
+        (this.grid as any).excelExport({
+          fileName: 'Loans.xlsx',
+          exportType: 'All'
+        });
+      } else if (fmt === 'pdf') {
+        // pdfExport accepts pdfExportProperties, ensure allowPdfExport is enabled on grid
+        (this.grid as any).pdfExport({
+          fileName: 'Loans.pdf',
+          exportType: 'All', // set to 'CurrentPage' or 'All' depending on desired result / library version
+          // pageOrientation: 'Landscape' // optional
+        });
+      }
+    } catch (err) {
+      console.error('Export failed', err);
+      window.alert('Export failed — see console.');
+    } finally {
+      this.exportMenuOpen = false;
+    }
   }
 
   /** ---------- Backend interactions (delegated to LoanService) ---------- */

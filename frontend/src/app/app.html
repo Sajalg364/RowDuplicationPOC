@@ -7,11 +7,6 @@
     </div>
 
     <div class="header-actions">
-      <!-- Theme toggle -->
-      <button class="theme-toggle" (click)="toggleTheme()" aria-label="Toggle theme">
-        <span *ngIf="!isDark">Dark</span>
-        <span *ngIf="isDark">Light</span>
-      </button>
 
       <!-- Keep toolbar here for top-right placement -->
       <ejs-toolbar (clicked)="onToolbarClick($event)" class="top-toolbar">
@@ -24,6 +19,20 @@
           <e-item text="Duplicate" id="duplicate"></e-item>
         </e-items>
       </ejs-toolbar>
+
+      <!-- Theme toggle -->
+      <button class="theme-toggle" (click)="toggleTheme()" aria-label="Toggle theme">
+        <span *ngIf="!isDark">Dark</span>
+        <span *ngIf="isDark">Light</span>
+      </button>
+
+      <div class="export-select" style="margin-left:12px;">
+        <select (change)="export($any($event.target).value)">
+          <option value="">Export...</option>
+          <option *ngFor="let f of exportFormats" [value]="f">{{ f }}</option>
+        </select>
+      </div>
+
     </div>
   </header>
 
@@ -31,28 +40,25 @@
   <main class="page-content">
     <div class="grid-wrap">
       <ejs-grid #grid id="LoanGrid" [dataSource]="data" allowPaging="true" [pageSettings]="pageSettings"
-                [editSettings]="editSettings" allowSorting="true"
-                [selectionSettings]="selectionSettings"
-                (actionComplete)="onActionComplete($event)"
-                (actionBegin)="onActionBegin($event)">
-      >
+        [editSettings]="editSettings" allowSorting="true" [selectionSettings]="selectionSettings"
+        allowExcelExport="true" allowPdfExport="true" (actionComplete)="onActionComplete($event)"
+        (actionBegin)="onActionBegin($event)">
+        >
         <e-columns>
           <e-column field="LoanID" headerText="Loan ID" width="120" textAlign="Right" isPrimaryKey="true"
-                    [validationRules]="loanIDRules"></e-column>
+            [validationRules]="loanIDRules"></e-column>
 
           <e-column field="Borrower" headerText="Borrower" width="180" [validationRules]="borrowerRules"></e-column>
-          <e-column field="Amount" headerText="Amount" width="130" format="C2" textAlign="Right"
-                    editType="numericedit" [validationRules]="amountRules"></e-column>
+          <e-column field="Amount" headerText="Amount" width="130" format="C2" textAlign="Right" editType="numericedit"
+            [validationRules]="amountRules"></e-column>
           <e-column field="Purpose" headerText="Purpose" width="220" editType="defaultedit"></e-column>
           <e-column field="Branch" headerText="Branch" width="150"></e-column>
 
           <e-column field="DocumentType" headerText="Document Type" width="160" editType="dropdownedit"
-                    [edit]="documentTypeEditParams"></e-column>
+            [edit]="documentTypeEditParams"></e-column>
 
-          <e-column field="attachments" headerText="Attachments" width="260"
-                    [template]="attachmentTemplate"
-                    editType="templateedit"
-                    [editTemplate]="attachmentEditTemplate">
+          <e-column field="attachments" headerText="Attachments" width="260" [template]="attachmentTemplate"
+            editType="templateedit" [editTemplate]="attachmentEditTemplate">
           </e-column>
         </e-columns>
       </ejs-grid>
@@ -79,13 +85,8 @@
       </div>
 
       <!-- Hidden permanent file input (works for existing rows that have LoanID) -->
-      <input
-        type="file"
-        id="{{'file-input-' + data.LoanID}}"
-        style="display:none"
-        (change)="onFileSelected($event, data)"
-        multiple
-      />
+      <input type="file" id="{{'file-input-' + data.LoanID}}" style="display:none"
+        (change)="onFileSelected($event, data)" multiple />
     </div>
   </ng-template>
 
@@ -108,13 +109,8 @@
         </select>
       </div>
 
-      <input
-        type="file"
-        id="{{'file-input-' + (data.LoanID || 'new-' + (data.__tempId || ''))}}"
-        style="display:none"
-        (change)="onFileSelected($event, data)"
-        multiple
-      />
+      <input type="file" id="{{'file-input-' + (data.LoanID || 'new-' + (data.__tempId || ''))}}" style="display:none"
+        (change)="onFileSelected($event, data)" multiple />
     </div>
   </ng-template>
 </div>

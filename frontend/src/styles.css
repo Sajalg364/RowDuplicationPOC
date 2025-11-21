@@ -10,8 +10,6 @@
 @import '../node_modules/@syncfusion/ej2-notifications/styles/material.css';
 @import '../node_modules/@syncfusion/ej2-angular-grids/styles/material.css';
 
-
-
 :root {
   --bg: #f6f8fb;
   --panel: #ffffff;
@@ -90,8 +88,6 @@
 
 /* Ensure toolbar visually aligns to the right */
 .top-toolbar {
-  --e-toolbar-background: transparent;
-  --e-toolbar-padding: 0;
 }
 
 /* Content area */
@@ -144,5 +140,97 @@
 .e-grid .e-gridcontent,
 .e-grid .e-content {
   overflow-x: hidden !important;
+}
+
+/* Position inside your header */
+.top-toolbar {
+  margin-left: 16px;
+  --e-toolbar-background: transparent;
+  --e-toolbar-padding: 0;
+}
+
+/* toolbar wrapper */
+.top-toolbar .e-toolbar {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Align toolbar items */
+.top-toolbar .e-toolbar-items {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Buttons */
+.top-toolbar .e-tbar-btn {
+  background: #f3f3f3;
+  border-radius: 6px !important;
+  padding: 2px 4px !important;
+  border: 1px solid #ccc !important;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* Hover & focus */
+.top-toolbar .e-tbar-btn:hover {
+  background: #e6e6e6;
+  border-color: #999 !important;
+}
+
+.top-toolbar .e-tbar-btn:focus {
+  border-color: #0078ff !important;
+  box-shadow: 0 0 3px rgba(0, 120, 255, 0.4);
+}
+
+/* Text inside buttons */
+.top-toolbar .e-tbar-btn .e-tbar-btn-text {
+  font-size: 14px;
+}
+
+/* Wrapper for spacing in header */
+.export-select {
+  position: relative;
+  margin-left: 12px;
+}
+
+/* Base select styling */
+.export-select select {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+/* Hover + focus */
+.export-select select:hover {
+  border-color: #999;
+}
+
+.export-select select:focus {
+  border-color: #0078ff;
+  box-shadow: 0 0 3px rgba(0, 120, 255, 0.5);
+}
+
+/* Dark mode styling (since your app supports dark) */
+.dark .export-select select {
+  background: #2c2c2c;
+  border: 1px solid #555;
+  color: #f1f1f1;
+}
+
+.dark .export-select select:hover {
+  border-color: #888;
+}
+
+.dark .export-select select:focus {
+  border-color: #4ba3ff;
+  box-shadow: 0 0 3px rgba(75, 163, 255, 0.5);
 }
 
